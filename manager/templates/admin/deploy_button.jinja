@@ -1,0 +1,4 @@
+<a class="deploy-button btn btn-success btn-sm" data-itemid="{{ id }}" id="deploy-button-{{ id }}" href="javascript:void(0)">{% trans %}Execute{% endtrans %}</a>
+<script type="text/javascript">
+    new Deploy({{ id }}, 'deploy-button-{{ id }}')
+</script>

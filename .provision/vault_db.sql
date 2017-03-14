@@ -1,0 +1,2 @@
+CREATE USER vault WITH LOGIN PASSWORD 'vault';
+CREATE DATABASE vault OWNER vault;

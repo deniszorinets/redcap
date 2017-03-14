@@ -1,0 +1,4 @@
+<a class="invalidate-button btn btn-success btn-sm" data-itemid="{{ id }}" id="invalidate-button-{{ id }}" href="javascript:void(0)">{% trans %}Invalidate{% endtrans %}</a>
+<script type="text/javascript">
+    new Invalidate({{ id }}, 'invalidate-button-{{ id }}')
+</script>
