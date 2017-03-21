@@ -5,14 +5,32 @@ DEBUG = True
 VAULT_TOKEN = 'vault-token'
 VAULT_URL = 'https://127.0.0.1:8200'
 
-CELERY_BROKER_URL = 'amqp://celery:celery@localhost:5672//'
+CELERY_BROKER_URL = 'amqp://user:pass@localhost:5672/vhost'
 
 SLACK_URL = 'slack_url'
 SLACK_USERNAME = 'RedCap'
 SLACK_CHANNEL = '#redcap'
 
-SLACK_URL = 'slack-url'
-SLACK_USERNAME = 'RedCap'
-SLACK_CHANNEL = '#redcap'
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db',
+        'USER': 'user',
+        'PASSWORD': 'pass',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
+}
 
 # Your local settings here

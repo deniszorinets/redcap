@@ -22,10 +22,10 @@ from paramiko.ssh_exception import AuthenticationException
 from django.core.exceptions import ObjectDoesNotExist
 
 # processes
-import subprocess
+import subprocess, os
 
 
-def exec_on_remote(host: str, user: str, ssh_port: int, key: str, commands: [str], password=None) -> [(str, str)]:
+def exec_on_remote(host: str, user: str, ssh_port: int, key: str, commands: [str], password=None) -> (str, str):
     """
     execute command on remove host
     :param ssh_port: ssh port
@@ -48,15 +48,13 @@ def exec_on_remote(host: str, user: str, ssh_port: int, key: str, commands: [str
 
     ssh.connect(host, username=user, pkey=private_key, port=ssh_port)
     res = []
-    for command in commands:
-        ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command=command)
-        ssh_stdin.close()
-        stdout = []
-        stderr = []
-        [stdout.append(line.decode('utf-8')) for line in ssh_stdout.read().splitlines()]
-        [stderr.append(line.decode('utf-8')) for line in ssh_stderr.read().splitlines()]
-        res.append(('\n'.join(stdout), '\n'.join(stderr)))
-    return res
+    ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command='\n'.join(commands))
+    ssh_stdin.close()
+    stdout = []
+    stderr = []
+    [stdout.append(line.decode('utf-8')) for line in ssh_stdout.read().splitlines()]
+    [stderr.append(line.decode('utf-8')) for line in ssh_stderr.read().splitlines()]
+    return '\n'.join(stdout), '\n'.join(stderr)
 
 
 def exec_on_local(commands: [str]) -> [(str, str)]:
@@ -66,14 +64,12 @@ def exec_on_local(commands: [str]) -> [(str, str)]:
     :return:
     """
     res = []
-    for command in commands:
-        p = subprocess.Popen(command.split(' '), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate()
-        res.append((stdout.decode('utf-8'), stderr.decode('utf-8')))
-    return res
+    p = subprocess.Popen("\n".join(commands), stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=os.environ, shell=True)
+    stdout, stderr = p.communicate()
+    return stdout.decode('utf-8'), stderr.decode('utf-8')
 
 
-def prepare_output(res: [tuple]) -> (bool, dict, str):
+def prepare_output(res: tuple) -> (bool, dict, str):
     """
     prepare output
     :param res:
@@ -82,13 +78,11 @@ def prepare_output(res: [tuple]) -> (bool, dict, str):
     success = True
     output = {'output': []}
     fail_stderr = None
-    for i in range(res.__len__()):
-        stdout, stderr = res[i]
-        output['output'].append({'line': i + 1, 'output': {'stdout': stdout, 'stderr': stderr}})
-        if not (stderr == '' or stderr is None):
-            success = False
-            fail_stderr = stderr
-            break
+    stdout, stderr = res
+    output = {'stdout': stdout, 'stderr': stderr}
+    if not (stderr == '' or stderr is None):
+        success = False
+        fail_stderr = stderr
     return success, output, fail_stderr
 
 
