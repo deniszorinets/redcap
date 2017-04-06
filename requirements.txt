@@ -25,4 +25,4 @@ slackweb==1.0.5
 vine==1.1.3
 djangorestframework==3.5.3
 django-rest-swagger==2.1.0
-django-jet
+django-suit==0.2.25

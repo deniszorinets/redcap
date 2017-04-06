@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('date', models.DateTimeField(auto_now=True)),
             ],
             options={
-                'db_table': 'manager_servers_action_history',
+                'db_table': 'task_manager_servers_action_history',
                 'verbose_name': 'Action history',
                 'verbose_name_plural': 'Action history',
             },
@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ('order',),
-                'db_table': 'manager_build_pipeline',
+                'db_table': 'task_manager_build_pipeline',
                 'verbose_name': 'Server pipeline',
                 'verbose_name_plural': 'Server pipeline',
             },
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('params', django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=None, null=True)),
             ],
             options={
-                'db_table': 'manager_build_targets',
+                'db_table': 'task_manager_build_targets',
                 'verbose_name': 'Build Target',
                 'verbose_name_plural': 'Build Targets',
             },
@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
                 ('contacts', django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=None, null=True)),
             ],
             options={
-                'db_table': 'manager_clients',
+                'db_table': 'task_manager_clients',
                 'verbose_name': 'Client',
                 'verbose_name_plural': 'Clients',
             },
@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
                 ('local', models.BooleanField(default=False)),
             ],
             options={
-                'db_table': 'manager_playbooks',
+                'db_table': 'task_manager_playbooks',
                 'verbose_name': 'Playbook',
                 'verbose_name_plural': 'Playbooks',
             },
@@ -90,10 +90,10 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=64)),
                 ('description', models.TextField(blank=True, default=None, null=True)),
                 ('url', models.URLField(blank=True, default=None, null=True)),
-                ('owner', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='manager.Client')),
+                ('owner', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='task_manager.Client')),
             ],
             options={
-                'db_table': 'manager_projects',
+                'db_table': 'task_manager_projects',
                 'verbose_name': 'Project',
                 'verbose_name_plural': 'Projects',
             },
@@ -113,7 +113,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True, default=None, null=True)),
             ],
             options={
-                'db_table': 'manager_servers',
+                'db_table': 'task_manager_servers',
                 'verbose_name': 'Server',
                 'verbose_name_plural': 'Servers',
             },
@@ -121,37 +121,37 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='buildtarget',
             name='pipeline',
-            field=models.ManyToManyField(through='manager.BuildPipeline', to='manager.Playbook'),
+            field=models.ManyToManyField(through='task_manager.BuildPipeline', to='task_manager.Playbook'),
         ),
         migrations.AddField(
             model_name='buildtarget',
             name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Project'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Project'),
         ),
         migrations.AddField(
             model_name='buildtarget',
             name='server',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Server'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Server'),
         ),
         migrations.AddField(
             model_name='buildpipeline',
             name='build_target',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.BuildTarget'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.BuildTarget'),
         ),
         migrations.AddField(
             model_name='buildpipeline',
             name='playbook',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Playbook'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Playbook'),
         ),
         migrations.AddField(
             model_name='actionhistory',
             name='playbook',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Playbook'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Playbook'),
         ),
         migrations.AddField(
             model_name='actionhistory',
             name='server',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Server'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Server'),
         ),
         migrations.AlterUniqueTogether(
             name='buildpipeline',
