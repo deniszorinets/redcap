@@ -1,8 +1,12 @@
 # models and fields
+from celery import group
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 import django.contrib.postgres.fields as psql
 
 # vault
+from jinja2 import Template
+
 from redcap.vault import vault
 from vault import VaultKeyManager
 
@@ -15,6 +19,8 @@ from django.utils.translation import ugettext_lazy as _
 
 # crypto helpers
 import keymanager.helpers as rsa
+
+from runner.execute_helpers import exec_on_local, exec_on_remote, prepare_output
 
 
 class Client(models.Model):
@@ -63,6 +69,17 @@ class Playbook(models.Model):
     def __str__(self):
         return self.title.__str__()
 
+    def execute(self, host: str, user: str, ssh_port: int, key: str, params: dict, password=None) -> (int, str, str):
+        template = Template(self.playbook)
+        commands = template.render(params).splitlines()
+
+        if not self.local:
+            res = exec_on_remote(host, user, ssh_port, key, commands, password)
+        else:
+            res = exec_on_local(commands)
+
+        return res
+
 
 class Server(models.Model):
     id = models.AutoField(primary_key=True)
@@ -108,6 +125,9 @@ class BuildPipeline(models.Model):
     build_target = models.ForeignKey('BuildTarget')
     order = models.PositiveIntegerField()
 
+    def __str__(self):
+        return self.playbook.__str__()
+
     class Meta:
         db_table = 'manager_build_pipeline'
         unique_together = ('playbook', 'build_target')
@@ -126,6 +146,45 @@ class BuildTarget(models.Model):
 
     def __str__(self):
         return self.name.__str__()
+
+    def execute(self, params: {} = None) -> (int, str, str):
+        playbooks = self.pipeline.order_by('buildpipeline__order').all()
+        if playbooks is None:
+            raise ObjectDoesNotExist(str.format('playbooks for server with id {0} not found', self.server.id))
+
+        server = self.server
+        host = None
+        fail_stderr = None
+        output = None
+        success = True
+        if server.ip_v4 is not None:
+            host = server.ip_v4
+        elif server.ip_v6 is not None:
+            host = server.ip_v6
+        elif server.domain is not None:
+            host = server.domain
+
+        if params is not None:
+            parameters = {**self.params, **params}
+        else:
+            parameters = self.params
+
+        for playbook in playbooks:
+            res = playbook.execute(host,
+                                   server.username,
+                                   server.ssh_port,
+                                   server.private_key,
+                                   parameters,
+                                   server.key_pass)
+
+            _success, _output, _fail_stderr = prepare_output(res)
+            ActionHistory(output=_output, server=server, playbook_id=playbook.id).save()
+            if not _success:
+                success = False
+                output = _output
+                fail_stderr = _fail_stderr
+                break
+        return success, output, fail_stderr
 
     class Meta:
         db_table = 'manager_build_targets'
@@ -147,6 +206,58 @@ class ActionHistory(models.Model):
         db_table = 'manager_servers_action_history'
         verbose_name = _('Action history')
         verbose_name_plural = _('Action history')
+
+
+class GroupBuildPipeline(models.Model):
+    group = models.ForeignKey('BuildGroup')
+    build = models.ForeignKey('BuildTarget')
+    order = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.build.name.__str__()
+
+    class Meta:
+        db_table = 'manager_group_build_pipeline'
+        unique_together = ('group', 'build')
+        verbose_name = _('Group pipeline')
+        verbose_name_plural = _('Group pipeline')
+        ordering = ('order',)
+
+
+class BuildGroup(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=64)
+    builds = models.ManyToManyField('BuildTarget', through='GroupBuildPipeline', through_fields=('group', 'build'))
+    parallel = models.BooleanField(default=False)
+    trigger_on_success = models.ForeignKey('BuildGroup', related_name='success_trigger', null=True, blank=True)
+    trigger_on_fail = models.ForeignKey('BuildGroup', related_name='fail_trigger', null=True, blank=True)
+
+    def __str__(self):
+        return self.name.__str__()
+
+    @staticmethod
+    def errors(res: [(int, str, str)]) -> [(bool, str, str)]:
+        result = []
+        if res is not None:
+            for r, i, o in res:
+                if r != 0:
+                    result.append((False, i, o))
+        return result
+
+    def execute(self) -> [(int, str, str)]:
+        builds = self.builds.order_by('groupbuildpipeline__order').all()
+        res = []
+        for build in builds:
+            res.append(build.execute())
+        errors = BuildGroup.errors(res)
+        if errors.__len__() > 0:
+            return errors
+        return None
+
+    class Meta:
+        db_table = 'manager_group'
+        verbose_name = _('Group')
+        verbose_name_plural = _('Groups')
 
 
 @receiver(pre_delete)

@@ -11,9 +11,26 @@ def deploy(request):
         data = json.loads(request.body.decode('utf-8'))
         try:
             server_build_id = int(data['serverID'])
-            exec_server_playbook.apply_async(args=(server_build_id, ))
+            build_target_execute_async.apply_async(args=(server_build_id, ))
         except ValueError:
-            return JsonResponse({'status': 500, 'error': 'server id is not valid'})
+            return JsonResponse({'status': 500, 'error': 'build id is not valid'})
+        except Exception as e:
+            return JsonResponse({'status': 500, 'error': e.__str__()})
+
+    return JsonResponse({'status': 'ok'})
+
+
+def deploy_group(request):
+    if not request.user.is_authenticated():
+        return JsonResponse({'status': 401, 'error': 'not authorized'})
+
+    if request.method == "POST":
+        data = json.loads(request.body.decode('utf-8'))
+        try:
+            server_group_build_id = int(data['serverID'])
+            build_group_execute_async.apply_async(args=(server_group_build_id, ))
+        except ValueError:
+            return JsonResponse({'status': 500, 'error': 'group id is not valid'})
         except Exception as e:
             return JsonResponse({'status': 500, 'error': e.__str__()})
 

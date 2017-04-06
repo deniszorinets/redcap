@@ -1,4 +1,6 @@
 # models and fields
+import json
+
 from .models import *
 
 # rest
@@ -35,9 +37,29 @@ class ActionHistorySerializer(serializers.HyperlinkedModelSerializer):
 
 
 class BuildTargetSerializer(serializers.HyperlinkedModelSerializer):
+    params = serializers.JSONField(allow_null=True)
+
     class Meta:
         model = BuildTarget
         fields = ('id', 'name', 'params', 'pipeline', 'project', 'server')
+
+
+class BuildTargetParamsSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
+    additional_params = serializers.JSONField(allow_null=True)
+    class Meta:
+        fields = ('additional_params', )
+
+
+class BuildGroupSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = BuildGroup
+        fields = ('id', 'name', 'builds', 'parallel', 'trigger_on_success', 'trigger_on_fail')
 
 
 class ServerSerializer(serializers.HyperlinkedModelSerializer):
@@ -91,7 +113,24 @@ class BuildTargetViewSet(viewsets.ModelViewSet):
     queryset = BuildTarget.objects.all()
     serializer_class = BuildTargetSerializer
 
-    @detail_route(methods=['get'])
-    def deploy(self, request, pk=None):
-        exec_server_playbook.apply_async(args=(pk,))
+    def get_serializer_class(self):
+        if self.action == 'deploy':
+            return BuildTargetParamsSerializer
+        return BuildTargetSerializer  # I dont' know what you want for create/destroy/update
+
+    @detail_route(methods=['post'])
+    def deploy(self, request, pk: int=None):
+        additional_params = request.data['additional_params']
+        params = json.loads(additional_params)
+        build_target_execute_async.apply_async(args=(pk, params))
+        return Response({})
+
+
+class BuildGroupViewSet(viewsets.ModelViewSet):
+    queryset = BuildGroup.objects.all()
+    serializer_class = BuildGroupSerializer
+
+    @detail_route(methods=['post'])
+    def deploy(self, request, pk: int = None):
+        build_group_execute_async.apply_async(args=(pk, ))
         return Response({})

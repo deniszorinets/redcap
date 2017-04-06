@@ -10,10 +10,12 @@ router.register(r'client', ClientViewSet)
 router.register(r'playbook', PlaybookViewSet)
 router.register(r'action_history', ActionHistoryViewSet)
 router.register(r'build_target', BuildTargetViewSet)
+router.register(r'build_group', BuildGroupViewSet)
 
 
 urlpatterns = [
     url(r'^deploy/$', views.deploy),
+    url(r'^deploy_group/$', views.deploy_group),
     url(r'^invalidate/$', views.invalidate),
     url(r'^', include(router.urls)),
 ]

@@ -8,7 +8,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-APPS = ['manager', 'runner']
+APPS = ['task_manager', 'runner']
 LIBS = [
     'django_celery_results',
     'adminsortable2',
@@ -17,7 +17,7 @@ LIBS = [
     'rest_framework_swagger',
 ]
 INSTALLED_APPS = [
-    'jet',
+    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -148,4 +148,16 @@ SWAGGER_SETTINGS = {
     "SHOW_REQUEST_HEADERS": True,
     "VALIDATOR_URL": False,
     "api_key": 'veristoken a7lrQNDy5O3ghxmye34fj6gIn343i07Q', # An API key
+}
+
+SUIT_CONFIG = {
+    'ADMIN_NAME': 'RedCap IT Automation',
+    'MENU_EXCLUDE': ('django_celery_results',),
+    'MENU': (
+        'sites',
+        {'app': 'authtoken', 'icon': 'icon-tag'},
+        {'app': 'auth', 'icon':'icon-lock', 'models': ('user', 'group', 'token')},
+        '-',
+        {'app': 'task_manager', 'icon': 'icon-list', 'label': 'Task Manager'},
+    ),
 }

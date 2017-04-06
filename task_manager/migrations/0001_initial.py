@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=64)),
                 ('description', models.TextField(blank=True, default=None, null=True)),
                 ('url', models.URLField(blank=True, default=None, null=True)),
-                ('owner', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='manager.Client')),
+                ('owner', models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to='task_manager.Client')),
             ],
             options={
                 'db_table': 'manager_projects',
@@ -121,37 +121,37 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='buildtarget',
             name='pipeline',
-            field=models.ManyToManyField(through='manager.BuildPipeline', to='manager.Playbook'),
+            field=models.ManyToManyField(through='task_manager.BuildPipeline', to='task_manager.Playbook'),
         ),
         migrations.AddField(
             model_name='buildtarget',
             name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Project'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Project'),
         ),
         migrations.AddField(
             model_name='buildtarget',
             name='server',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Server'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Server'),
         ),
         migrations.AddField(
             model_name='buildpipeline',
             name='build_target',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.BuildTarget'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.BuildTarget'),
         ),
         migrations.AddField(
             model_name='buildpipeline',
             name='playbook',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Playbook'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Playbook'),
         ),
         migrations.AddField(
             model_name='actionhistory',
             name='playbook',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Playbook'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Playbook'),
         ),
         migrations.AddField(
             model_name='actionhistory',
             name='server',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='manager.Server'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='task_manager.Server'),
         ),
         migrations.AlterUniqueTogether(
             name='buildpipeline',
