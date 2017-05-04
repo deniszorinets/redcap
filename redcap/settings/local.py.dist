@@ -2,21 +2,23 @@ from .settings import *
 
 DEBUG = True
 
-VAULT_TOKEN = 'vault-token'
-VAULT_URL = 'https://127.0.0.1:8200'
+#VAULT_TOKEN=token
+VAULT_URL = 'http://127.0.0.1:8200'
 
-CELERY_BROKER_URL = 'amqp://user:pass@localhost:5672/vhost'
+CELERY_BROKER_URL = 'amqp://celery:celery@localhost:5672/celery'
 
-SLACK_URL = 'slack_url'
+SLACK_URL = 'http://slack_url'
 SLACK_USERNAME = 'RedCap'
 SLACK_CHANNEL = '#redcap'
+
+CUSTOM_CALLBACK = 'http://custom_callback_url'
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'db',
-        'USER': 'user',
-        'PASSWORD': 'pass',
+        'NAME': 'redcap',
+        'USER': 'redcap',
+        'PASSWORD': 'redcap',
         'HOST': '127.0.0.1',
         'PORT': '5432',
     }
@@ -33,4 +35,3 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 
-# Your local settings here

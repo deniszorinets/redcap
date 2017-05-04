@@ -5,6 +5,10 @@ from redcap.settings import SLACK_CHANNEL, SLACK_USERNAME
 from messenger import *
 from redcap.slack import slack
 
+# logging
+import logging
+logger = logging.getLogger('systemwide')
+
 
 def notify_started(server_name: str, project_url: str, project_name: str):
     attachments = []
@@ -22,13 +26,17 @@ def notify_started(server_name: str, project_url: str, project_name: str):
         "mrkdwn_in": ["text", "pretext"]
     }
     attachments.append(attachment)
-    return SlackMessenger(slack).send(
-        text='Delivery started',
-        channel=SLACK_CHANNEL,
-        username=SLACK_USERNAME,
-        icon_emoji=':sunny:',
-        attachments=attachments)
-
+    try:
+        return SlackMessenger(slack).send(
+            text='Delivery started',
+            channel=SLACK_CHANNEL,
+            username=SLACK_USERNAME,
+            icon_emoji=':sunny:',
+            attachments=attachments)
+    except NameError:
+        pass
+    except Exception as e:
+        logger.error("Slack Notificatnion: " + e.__str__())
 
 def notify_success(server_name: str, project_url: str, project_name: str):
     attachments = []
@@ -46,12 +54,17 @@ def notify_success(server_name: str, project_url: str, project_name: str):
         "mrkdwn_in": ["text", "pretext"]
     }
     attachments.append(attachment)
-    SlackMessenger(slack).send(
-        text='Delivered',
-        channel=SLACK_CHANNEL,
-        username=SLACK_USERNAME,
-        icon_emoji=':sunny:',
-        attachments=attachments)
+    try:
+        SlackMessenger(slack).send(
+            text='Delivered',
+            channel=SLACK_CHANNEL,
+            username=SLACK_USERNAME,
+            icon_emoji=':sunny:',
+            attachments=attachments)
+    except NameError:
+        pass
+    except Exception as e:
+        logger.error("Slack Notificatnion: " + e.__str__())
 
 
 def notify_fail(server_name: str, project_url: str, project_name: str, error: str):
@@ -70,9 +83,14 @@ def notify_fail(server_name: str, project_url: str, project_name: str, error: st
         "mrkdwn_in": ["text", "pretext"]
     }
     attachments.append(attachment)
-    SlackMessenger(slack).send(
-        text='Delivered',
-        channel=SLACK_CHANNEL,
-        username=SLACK_USERNAME,
-        icon_emoji=':thunder_cloud_and_rain:',
-        attachments=attachments)
+    try:
+        SlackMessenger(slack).send(
+            text='Delivered',
+            channel=SLACK_CHANNEL,
+            username=SLACK_USERNAME,
+            icon_emoji=':thunder_cloud_and_rain:',
+            attachments=attachments)
+    except NameError:
+        pass
+    except Exception as e:
+        logger.error("Slack Notificatnion: " + e.__str__())

@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+apt-get install -y python3.5 python3.5-dev postgresql-9.6 postgresql-client-9.6 postgresql-contrib-9.6 postgresql-server-dev-9.6 gcc make openssl libssl-dev unzip vim zsh htop supervisor rabbitmq-server

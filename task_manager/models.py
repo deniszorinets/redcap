@@ -170,14 +170,18 @@ class BuildTarget(models.Model):
             parameters = self.params
 
         for playbook in playbooks:
-            res = playbook.execute(host,
+            try:
+                res = playbook.execute(host,
                                    server.username,
                                    server.ssh_port,
                                    server.private_key,
                                    parameters,
                                    server.key_pass)
-
-            _success, _output, _fail_stderr = prepare_output(res)
+                _success, _output, _fail_stderr = prepare_output(res)
+            except Exception as e:
+                _output = e.__str__()
+                _fail_stderr = e.__str__()
+                _success = False
             ActionHistory(output=_output, server=server, playbook_id=playbook.id).save()
             if not _success:
                 success = False

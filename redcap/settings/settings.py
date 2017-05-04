@@ -17,7 +17,6 @@ LIBS = [
     'rest_framework_swagger',
 ]
 INSTALLED_APPS = [
-    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -122,12 +121,31 @@ STATICFILES_DIRS = [
 
 CELERY_RESULT_BACKEND = 'django-db'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': 'log/error.log',
+        },
+    },
+    'loggers': {
+        'systemwide': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100
@@ -148,16 +166,4 @@ SWAGGER_SETTINGS = {
     "SHOW_REQUEST_HEADERS": True,
     "VALIDATOR_URL": False,
     "api_key": 'veristoken a7lrQNDy5O3ghxmye34fj6gIn343i07Q', # An API key
-}
-
-SUIT_CONFIG = {
-    'ADMIN_NAME': 'RedCap IT Automation',
-    'MENU_EXCLUDE': ('django_celery_results',),
-    'MENU': (
-        'sites',
-        {'app': 'authtoken', 'icon': 'icon-tag'},
-        {'app': 'auth', 'icon':'icon-lock', 'models': ('user', 'group', 'token')},
-        '-',
-        {'app': 'task_manager', 'icon': 'icon-list', 'label': 'Task Manager'},
-    ),
 }

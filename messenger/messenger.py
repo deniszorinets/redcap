@@ -1,6 +1,10 @@
 # slack
 import slackweb
 
+import requests as req
+
+import redcap.settings as settings
+
 
 class Messenger:
     """
@@ -31,3 +35,23 @@ class SlackMessenger(Messenger):
         :return:
         """
         return self.sender.notify(**kwargs)
+
+
+class CustomCallbackMessenger(Messenger):
+    """
+    custom messenger
+    """
+    def __init__(self) -> None:
+        pass
+
+    def send(self, *args, **kwargs) -> req.Response:
+        """
+        send message
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        try:
+            return req.post(settings.CUSTOM_CALLBACK, json=kwargs)
+        except NameError:
+            pass
