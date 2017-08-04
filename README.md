@@ -28,11 +28,12 @@ This will create fully prepared machine with development environment.
 - admin panel located on ```http://your_vagrant_ip:8000/admin```
 
 # DOCKER INSTALLATION 
+- Install docker and docker-compose on your machine
 - clone this repo
 ```git clone https://github.com/deniszorinets/redcap.git```
 - go to Docker directory
 ```cd your_path/redcap/.docker```
-- set passwords and logins in ```docker-compose.yml```
+- setup your enviroment variables ```cp .env.dist .env``` and edit it (put your usernames and passwords)
 - build project
 ```docker-compose buid```
 - start containers 
@@ -46,10 +47,12 @@ b94ee187af4d        docker_vault        "docker-entrypoint..."   37 minutes ago 
 d700cc844c48        docker_db           "docker-entrypoint..."   37 minutes ago      Up 37 minutes       0.0.0.0:5432->5432/tcp                                   postgres
 1ecc663e0bf4        rabbitmq:alpine     "docker-entrypoint..."   37 minutes ago      Up 37 minutes       4369/tcp, 5671/tcp, 25672/tcp, 0.0.0.0:5672->5672/tcp    rabbit
 ```
-NOTE! If one of containers doesn`t start, run containers again: ```docker-compose up -d```
+- NOTE! If one of containers doesn`t start, run containers again: ```docker-compose up -d```
+
 - init vault
 ```docker exec -it vault sh -c "vault init >> /vault/keys/secret && cat /vault/keys/secret"```
-NOTE! Then programm show your unseal keys and vault tokken, like this:
+
+- NOTE! Then programm show your unseal keys and vault tokken, like this:
 ```
 Unseal Key 1: some key
 Unseal Key 2: some key
@@ -111,7 +114,8 @@ DATABASES = {
 - restart app
 ```docker exec -t redcap sh -c "supervisorctl restart celery && supervisorctl restart gunicorn```
 - after all on your ```localhost:8080``` you find swagger page. ```localhost:8080/admin``` admin page
-NOTE! Tou can change domain name in ```nginx/config/default.conf``` 
+
+- NOTE! Tou can change domain name in ```nginx/config/default.conf``` 
 
 
 # PRODUCTION INSTALLATION (basic CentOS 7 example)

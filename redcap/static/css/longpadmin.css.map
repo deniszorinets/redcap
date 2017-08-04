@@ -1,1 +1,0 @@
-{"version":3,"sources":["longpadmin.scss"],"names":[],"mappings":"AAAA,EACE,cAAe,WACf,UAAW,WACX,WAAY","file":"longpadmin.css","sourcesContent":["p {\r\n  overflow-wrap: break-word;\r\n  word-wrap: break-word;\r\n  word-break: break-all;\r\n}\r\n"]}

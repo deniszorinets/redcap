@@ -14,12 +14,12 @@ services:
         build: postgres
         container_name: postgres
         environment:
-            REDCAP_PASS: redcap
-            REDCAP_USER: redcap
-            VAULT_PASS: vault
-            VAULT_USER: vault
-            POSTGRES_PASSWORD: password
-            POSTGRES_USER: user
+            REDCAP_PASS: ${REDCAP_PASS}
+            REDCAP_USER: ${REDCAP_USER}
+            VAULT_PASS: ${VAULT_PASS}
+            VAULT_USER: ${VAULT_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_USER: ${POSTGRES_USER}
         ports:
             - '5432:5432'
         volumes: 
@@ -28,8 +28,8 @@ services:
         image: rabbitmq:alpine
         container_name: rabbit
         environment:
-            RABBITMQ_DEFAULT_USER: rabbit
-            RABBITMQ_DEFAULT_PASS: rabbit
+            RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
         ports:
             - '5672:5672'
     vault:
@@ -37,8 +37,8 @@ services:
         container_name: vault
         environment:
             VAULT_ADDR: http://127.0.0.1:8200
-            VAULT_PASS: vault
-            VAULT_USER: vault 
+            VAULT_PASS: ${VAULT_PASS}
+            VAULT_USER: ${VAULT_USER} 
         cap_add: 
             - IPC_LOCK
         volumes:
