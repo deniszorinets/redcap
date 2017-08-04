@@ -48,10 +48,10 @@ d700cc844c48        docker_db           "docker-entrypoint..."   37 minutes ago 
 1ecc663e0bf4        rabbitmq:alpine     "docker-entrypoint..."   37 minutes ago      Up 37 minutes       4369/tcp, 5671/tcp, 25672/tcp, 0.0.0.0:5672->5672/tcp    rabbit
 ```
 - NOTE! If one of containers doesn`t start, run containers again: ```docker-compose up -d```
-
 - init vault
 ```docker exec -it vault sh -c "vault init >> /vault/keys/secret && cat /vault/keys/secret"```
-
+- init vault
+```docker exec -it vault sh -c "vault init >> /vault/keys/secret && cat /vault/keys/secret"```
 - NOTE! Then programm show your unseal keys and vault tokken, like this:
 ```
 Unseal Key 1: some key
@@ -69,7 +69,7 @@ to unseal it again.
 Vault does not store the master key. Without at least 3 keys,
 your vault will remain permanently sealed.
 ```
-Save tokken and keys!!!
+- Save tokken and keys!!!
 
 - create config for redcap ```cd your_path/redcap/redcap/settings``` ```cp local.py.dist local.py``` edit local.py as you need. For example:
 ```
@@ -114,8 +114,8 @@ DATABASES = {
 - restart app
 ```docker exec -t redcap sh -c "supervisorctl restart celery && supervisorctl restart gunicorn```
 - after all on your ```localhost:8080``` you find swagger page. ```localhost:8080/admin``` admin page
-
 - NOTE! Tou can change domain name in ```nginx/config/default.conf``` 
+- NOTE! You can change domain name in ```nginx/config/default.conf``` 
 
 
 # PRODUCTION INSTALLATION (basic CentOS 7 example)
