@@ -111,7 +111,7 @@ DATABASES = {
 - restart app
 ```docker exec -t redcap sh -c "supervisorctl restart celery && supervisorctl restart gunicorn```
 - after all on your ```localhost:8080``` you find swagger page. ```localhost:8080/admin``` admin page
-NOTE! Tou can change domain name in ```nginx/config/default.conf``` 
+- NOTE! You can change domain name in ```nginx/config/default.conf``` 
 
 
 # PRODUCTION INSTALLATION (basic CentOS 7 example)
