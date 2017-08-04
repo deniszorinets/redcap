@@ -1,0 +1,66 @@
+version: '3'
+services:
+    nginx:
+        build: nginx
+        container_name: nginx
+        ports:
+            - '8080:8080'
+            - '8443:8443'
+        volumes:
+            - '..:/redcap' 
+        links:
+            - redcap
+    db:
+        build: postgres
+        container_name: postgres
+        environment:
+            REDCAP_PASS: redcap
+            REDCAP_USER: redcap
+            VAULT_PASS: vault
+            VAULT_USER: vault
+            POSTGRES_PASSWORD: password
+            POSTGRES_USER: user
+        ports:
+            - '5432:5432'
+        volumes: 
+            - pgsql_data:/var/lib/postgresql/data 
+    rabbit:
+        image: rabbitmq:alpine
+        container_name: rabbit
+        environment:
+            RABBITMQ_DEFAULT_USER: rabbit
+            RABBITMQ_DEFAULT_PASS: rabbit
+        ports:
+            - '5672:5672'
+    vault:
+        build: vault
+        container_name: vault
+        environment:
+            VAULT_ADDR: http://127.0.0.1:8200
+            VAULT_PASS: vault
+            VAULT_USER: vault 
+        cap_add: 
+            - IPC_LOCK
+        volumes:
+            - vault_keys:/vault/keys
+        ports:
+            - '8200:8200'
+        links: 
+            - db 
+    redcap:
+        build: redcap
+        container_name: redcap
+        volumes: 
+            - '..:/redcap'
+        ports: 
+            - '8000:8000'
+        links: 
+            - db
+            - rabbit
+            - vault
+volumes:
+     pgsql_data:
+         driver: local
+     vault_keys:
+         driver: local
+     
