@@ -48,8 +48,10 @@ d700cc844c48        docker_db           "docker-entrypoint..."   37 minutes ago 
 1ecc663e0bf4        rabbitmq:alpine     "docker-entrypoint..."   37 minutes ago      Up 37 minutes       4369/tcp, 5671/tcp, 25672/tcp, 0.0.0.0:5672->5672/tcp    rabbit
 ```
 - NOTE! If one of containers doesn`t start, run containers again: ```docker-compose up -d```
+
 - init vault
 ```docker exec -it vault sh -c "vault init >> /vault/keys/secret && cat /vault/keys/secret"```
+
 - NOTE! Then programm show your unseal keys and vault tokken, like this:
 ```
 Unseal Key 1: some key
@@ -108,16 +110,21 @@ DATABASES = {
 ```cd your_path/redcap/.docker```
 
 - run migrations
-```docker exec -it redcap sh -c "cd redcap && python manage.py migrate"```
-
+```
+docker exec -it redcap sh -c "cd redcap && python manage.py migrate"
+```
 - create superuser (use this username and pass for website login)
-```docker exec -it redcap sh -c "cd redcap && python manage.py createsuperuser"```
- 
+```
+docker exec -it redcap sh -c "cd redcap && python manage.py createsuperuser"
+``` 
 - collect static files
-```docker exec -it redcap sh -c "cd redcap && python manage.py collectstatic"```
-
+```
+docker exec -it redcap sh -c "cd redcap && python manage.py collectstatic"
+```
 - restart app
-```docker exec -t redcap sh -c "supervisorctl restart celery && supervisorctl restart gunicorn```
+```
+docker exec -t redcap sh -c "supervisorctl restart celery && supervisorctl restart gunicorn"
+```
 - after all on your ```localhost:8080``` you find swagger page. ```localhost:8080/admin``` admin page
 
 - NOTE! Tou can change domain name in ```nginx/config/default.conf``` 
