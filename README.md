@@ -27,6 +27,97 @@ This will create fully prepared machine with development environment.
 - in your browser go to ```http://your_vagrant_ip:8000``` - here you will see swagger page with api commands
 - admin panel located on ```http://your_vagrant_ip:8000/admin```
 
+# DOCKER INSTALLATION 
+- Install docker and docker-compose on your machine
+- clone this repo
+```git clone https://github.com/deniszorinets/redcap.git```
+- go to Docker directory
+```cd your_path/redcap/.docker```
+- setup your enviroment variables ```cp .env.dist .env``` and edit it (put your usernames and passwords)
+- build project
+```docker-compose buid```
+- start containers 
+```docker-compose up -d```
+- you can list working containers via: ```docker ps```. Your containers:
+```
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                                                    NAMES
+a50ebbbe039d        docker_nginx        "nginx -g 'daemon ..."   37 minutes ago      Up 37 minutes       0.0.0.0:8080->8080/tcp, 80/tcp, 0.0.0.0:8443->8443/tcp   nginx
+817fcbf52595        docker_redcap       "/bin/sh -c 'super..."   37 minutes ago      Up 37 minutes       0.0.0.0:8000->8000/tcp                                   redcap
+b94ee187af4d        docker_vault        "docker-entrypoint..."   37 minutes ago      Up 36 minutes       0.0.0.0:8200->8200/tcp                                   vault
+d700cc844c48        docker_db           "docker-entrypoint..."   37 minutes ago      Up 37 minutes       0.0.0.0:5432->5432/tcp                                   postgres
+1ecc663e0bf4        rabbitmq:alpine     "docker-entrypoint..."   37 minutes ago      Up 37 minutes       4369/tcp, 5671/tcp, 25672/tcp, 0.0.0.0:5672->5672/tcp    rabbit
+```
+- NOTE! If one of containers doesn`t start, run containers again: ```docker-compose up -d```
+
+- init vault
+```docker exec -it vault sh -c "vault init >> /vault/keys/secret && cat /vault/keys/secret"```
+
+- NOTE! Then programm show your unseal keys and vault tokken, like this:
+```
+Unseal Key 1: some key
+Unseal Key 2: some key
+Unseal Key 3: some key
+Unseal Key 4: some key
+Unseal Key 5: some key
+Initial Root Token: tokken
+
+Vault initialized with 5 keys and a key threshold of 3. Please
+securely distribute the above keys. When the vault is re-sealed,
+restarted, or stopped, you must provide at least 3 of these keys
+to unseal it again.
+
+Vault does not store the master key. Without at least 3 keys,
+your vault will remain permanently sealed.
+```
+Save tokken and keys!!!
+
+- create config for redcap ```cd your_path/redcap/redcap/settings``` ```cp local.py.dist local.py``` edit local.py as you need. For example:
+```
+from .settings import *
+
+DEBUG = False
+
+VAULT_TOKEN = 'your_vault_token' <--- change to your vault token
+VAULT_URL = 'http://vault:8200'
+
+CELERY_BROKER_URL = 'amqp://RABBITMQ_DEFAULT_USER:RABBITMQ_DEFAULT_PASS@rabbit:5672//' <--- change USER and PASS
+
+# If you want to receive notifications to your application - use following section. 
+# RedCap will send POST request to this url with id of task and status
+CUSTOM_CALLBACK = 'http://custom_callback_url'
+
+# If you want to receive notifications to slack - create slack app and use following section
+SLACK_URL = 'slack_url'
+SLACK_USERNAME = 'RedCap'
+SLACK_CHANNEL = '#redcap'
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'redcap', <--- change this  
+        'USER': 'redcap', <--- change this
+        'PASSWORD': 'your_secret_pass', <--- change this
+        'HOST': 'db',
+        'PORT': '5432',
+    }
+}
+
+```
+- go to Docker directory
+```cd your_path/redcap/.docker```
+- run migrations
+```docker exec -it redcap sh -c "cd redcap && python manage.py migrate"```
+- create superuser (use this username and pass for website login)
+```docker exec -it redcap sh -c "cd redcap && python manage.py createsuperuser"``` 
+- collect static files
+```docker exec -it redcap sh -c "cd redcap && python manage.py collectstatic"```
+- restart app
+```docker exec -t redcap sh -c "supervisorctl restart celery && supervisorctl restart gunicorn```
+- after all on your ```localhost:8080``` you find swagger page. ```localhost:8080/admin``` admin page
+
+- NOTE! Tou can change domain name in ```nginx/config/default.conf``` 
+
+
 # PRODUCTION INSTALLATION (basic CentOS 7 example)
 - update system:
 ```yum update```
