@@ -50,8 +50,6 @@ d700cc844c48        docker_db           "docker-entrypoint..."   37 minutes ago 
 - NOTE! If one of containers doesn`t start, run containers again: ```docker-compose up -d```
 - init vault
 ```docker exec -it vault sh -c "vault init >> /vault/keys/secret && cat /vault/keys/secret"```
-- init vault
-```docker exec -it vault sh -c "vault init >> /vault/keys/secret && cat /vault/keys/secret"```
 - NOTE! Then programm show your unseal keys and vault tokken, like this:
 ```
 Unseal Key 1: some key
@@ -70,6 +68,9 @@ Vault does not store the master key. Without at least 3 keys,
 your vault will remain permanently sealed.
 ```
 - Save tokken and keys!!!
+
+- unseal vault keys
+```docker exec -it vault sh -c "./vault-unseal.sh"```
 
 - create config for redcap ```cd your_path/redcap/redcap/settings``` ```cp local.py.dist local.py``` edit local.py as you need. For example:
 ```
@@ -105,17 +106,21 @@ DATABASES = {
 ```
 - go to Docker directory
 ```cd your_path/redcap/.docker```
+
 - run migrations
 ```docker exec -it redcap sh -c "cd redcap && python manage.py migrate"```
+
 - create superuser (use this username and pass for website login)
-```docker exec -it redcap sh -c "cd redcap && python manage.py createsuperuser"``` 
+```docker exec -it redcap sh -c "cd redcap && python manage.py createsuperuser"```
+ 
 - collect static files
 ```docker exec -it redcap sh -c "cd redcap && python manage.py collectstatic"```
+
 - restart app
 ```docker exec -t redcap sh -c "supervisorctl restart celery && supervisorctl restart gunicorn```
 - after all on your ```localhost:8080``` you find swagger page. ```localhost:8080/admin``` admin page
+
 - NOTE! Tou can change domain name in ```nginx/config/default.conf``` 
-- NOTE! You can change domain name in ```nginx/config/default.conf``` 
 
 
 # PRODUCTION INSTALLATION (basic CentOS 7 example)
